@@ -729,29 +729,47 @@ def get_budget_governance_policy(current_cost: float, budget_cap: float) -> dict
 
 # 擷取 YouTube 直播純音源 m3u8 / Direct URL (使用 yt-dlp)
 def get_live_audio_url(youtube_url: str) -> str:
+    # 1. 動態偵測可用的 JavaScript Runtime 絕對路徑 (優先 Deno，次選 Node)
+    js_runtimes_config = {}
+    
+    # 測試 pip 安裝的 Deno
+    try:
+        import deno
+        deno_bin = deno.find_deno_bin()
+        if deno_bin and os.path.exists(deno_bin):
+            js_runtimes_config['deno'] = {'path': deno_bin}
+    except Exception:
+        pass
+
+    # 若未找到 Deno，嘗試尋找系統端的 node 或 nodejs
+    if 'deno' not in js_runtimes_config:
+        node_bin = shutil.which("node") or shutil.which("nodejs") or "/usr/bin/node" or "/usr/bin/nodejs"
+        if node_bin and os.path.exists(node_bin):
+            js_runtimes_config['node'] = {'path': node_bin}
+
     ydl_opts = {
         'format': 'bestaudio/best',
         'quiet': True,
         'skip_download': True,
-        # 👇 明確啟用 node 作為 JS runtime，解除 "No supported JavaScript runtime" 警告
-        'js_runtimes': {
-            'node': {}
-        }
     }
 
-    # 讀取並注入暫存 cookies（若已在 st.secrets 配置 YOUTUBE_COOKIES）
+    if js_runtimes_config:
+        ydl_opts['js_runtimes'] = js_runtimes_config
+
+    # 2. 注入 Streamlit Secrets 中的 YouTube Cookies 解決 Bot 阻擋
     cookies_str = None
     try:
         cookies_str = st.secrets.get("YOUTUBE_COOKIES")
     except Exception:
         pass
 
-    if cookies_str:
+    if cookies_str and cookies_str.strip():
         cookie_file_path = "yt_cookies.txt"
         with open(cookie_file_path, "w", encoding="utf-8") as f:
             f.write(cookies_str.strip())
         ydl_opts['cookiefile'] = cookie_file_path
 
+    # 3. 呼叫 yt-dlp 解析串流 URL
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
         return info['url']

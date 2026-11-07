@@ -10,3 +10,4 @@ pytchat
 requests
 pydantic
 streamlit-autorefresh
+deno
