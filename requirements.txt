@@ -1,0 +1,11 @@
+streamlit
+google-genai
+python-dotenv
+pandas
+numpy
+matplotlib
+yt-dlp
+pytchat
+requests
+pydantic
+streamlit-autorefresh
