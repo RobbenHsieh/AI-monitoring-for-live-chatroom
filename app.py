@@ -45,10 +45,23 @@ import threading
 current_dir = Path(__file__).parent.resolve()
 load_dotenv(dotenv_path=current_dir / "GEMINI_API_KEY.env")
 api_key = os.getenv("GEMINI_API_KEY")
-if not api_key and "GEMINI_API_KEY" in st.secrets:
-    api_key = st.secrets["GEMINI_API_KEY"]
+if not api_key:
+    try:
+        api_key = st.secrets.get("GEMINI_API_KEY")
+    except Exception:
+        pass
 youtube_api_key = os.getenv("YOUTUBE_API_KEY")
-rate_limit_tier = os.getenv("GEMINI_RATE_LIMIT_TIER", "Free")
+if not youtube_api_key:
+    try:
+        youtube_api_key = st.secrets.get("YOUTUBE_API_KEY")
+    except Exception:
+        pass
+rate_limit_tier = os.getenv("GEMINI_RATE_LIMIT_TIER")
+if not rate_limit_tier:
+    try:
+        rate_limit_tier = st.secrets.get("GEMINI_RATE_LIMIT_TIER")
+    except Exception:
+        pass
 global_model_name = "models/gemini-2.5-flash-lite"
 
 st.set_page_config(page_title="AI Agent FSM & Generative UI Demo", layout="wide")
@@ -715,16 +728,28 @@ def get_budget_governance_policy(current_cost: float, budget_cap: float) -> dict
         }
 
 # 擷取 YouTube 直播純音源 m3u8 / Direct URL (使用 yt-dlp)
-# def get_live_audio_url(youtube_url: str) -> str:
-#     """利用 yt-dlp 解析直播純音源 m3u8 / Direct URL"""
-#     ydl_opts = {
-#         'format': 'bestaudio/best',
-#         'quiet': True,
-#         'skip_download': True
-#     }
-#     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-#         info = ydl.extract_info(youtube_url, download=False)
-#         return info['url']
+def get_live_audio_url(youtube_url: str) -> str:
+    ydl_opts = {
+        'format': 'bestaudio/best',
+        'quiet': True,
+        'skip_download': True,
+        'js_runtimes': {'node': {}}
+    }
+    # 若存在 cookies secret，動態產生暫存檔餵給 yt-dlp
+    cookies_content = None
+    try:
+        cookies_content = st.secrets.get("YOUTUBE_COOKIES")
+    except Exception:
+        pass
+
+    if cookies_content:
+        cookie_file = Path("yt_cookies.txt")
+        cookie_file.write_text(cookies_content, encoding="utf-8")
+        ydl_opts['cookiefile'] = str(cookie_file)
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(youtube_url, download=False)
+        return info['url']
 
 def start_audio_slicing_pipeline(audio_stream_url: str, segment_seconds: int = 20, output_dir: str = "audio_chunks"):
     """叫起背景 FFmpeg 子程序進行音訊分段切片供 STT 使用"""
