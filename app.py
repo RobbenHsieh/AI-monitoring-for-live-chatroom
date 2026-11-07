@@ -735,17 +735,19 @@ def get_live_audio_url(youtube_url: str) -> str:
         'skip_download': True,
         'js_runtimes': {'node': {}}
     }
-    # 若存在 cookies secret，動態產生暫存檔餵給 yt-dlp
-    cookies_content = None
+    
+    # 檢查是否配置了 Cookies
+    cookies_str = None
     try:
-        cookies_content = st.secrets.get("YOUTUBE_COOKIES")
+        cookies_str = st.secrets.get("YOUTUBE_COOKIES")
     except Exception:
         pass
 
-    if cookies_content:
-        cookie_file = Path("yt_cookies.txt")
-        cookie_file.write_text(cookies_content, encoding="utf-8")
-        ydl_opts['cookiefile'] = str(cookie_file)
+    cookie_file_path = "yt_cookies.txt"
+    if cookies_str:
+        with open(cookie_file_path, "w", encoding="utf-8") as f:
+            f.write(cookies_str.strip())
+        ydl_opts['cookiefile'] = cookie_file_path
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
