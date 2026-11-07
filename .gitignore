@@ -1,0 +1,14 @@
+# 忽略金鑰與敏感檔案
+.env
+*.env
+GEMINI_API_KEY.env
+
+# 忽略本機音訊快取與暫存檔
+audio_chunks/
+__pycache__/
+*.wav
+*.mp3
+
+# 忽略虛擬環境
+.venv/
+venv/

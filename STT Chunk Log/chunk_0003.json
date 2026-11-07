@@ -1,0 +1,11 @@
+{
+  "chunk_id": "chunk_0003",
+  "start_ts": 1793882306.0601864,
+  "end_ts": 1793882486.0601864,
+  "time_window": "20:38:26 - 20:41:26",
+  "text": "(STT 失敗: ClientError - 404 NOT_FOUND. {'error': )",
+  "pos_count": 4,
+  "neg_count": 0,
+  "net_score": 10,
+  "status": "Evaluated (Fallback)"
+}
