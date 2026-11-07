@@ -729,7 +729,7 @@ def start_audio_slicing_pipeline(audio_stream_url: str, segment_seconds: int = 2
     os.makedirs(output_dir, exist_ok=True)
     out_pattern = os.path.join(output_dir, "chunk_%04d.wav")
 
-    ffmpeg_bin = r"C:\Users\sky00\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build\bin\ffmpeg.exe"
+    # ffmpeg_bin = r"C:\Users\sky00\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-9.0.2-full_build\bin\ffmpeg.exe"
 
     cmd = [
         "ffmpeg",
