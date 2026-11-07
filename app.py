@@ -733,18 +733,17 @@ def get_live_audio_url(youtube_url: str) -> str:
         'format': 'bestaudio/best',
         'quiet': True,
         'skip_download': True,
-        'js_runtimes': {'node': {}}
     }
-    
-    # 檢查是否配置了 Cookies
+
+    # 讀取並注入暫存 cookies（若已設定）
     cookies_str = None
     try:
         cookies_str = st.secrets.get("YOUTUBE_COOKIES")
     except Exception:
         pass
 
-    cookie_file_path = "yt_cookies.txt"
     if cookies_str:
+        cookie_file_path = "yt_cookies.txt"
         with open(cookie_file_path, "w", encoding="utf-8") as f:
             f.write(cookies_str.strip())
         ydl_opts['cookiefile'] = cookie_file_path
