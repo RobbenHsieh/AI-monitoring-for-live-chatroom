@@ -6,8 +6,8 @@ pandas
 numpy
 matplotlib
 yt-dlp
+yt-dlp-ejs
 pytchat
 requests
 pydantic
 streamlit-autorefresh
-deno
