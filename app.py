@@ -783,7 +783,7 @@ def get_live_audio_url(youtube_url: str) -> str:
         'format': 'bestaudio/best',
         'quiet': True,
         'skip_download': True,
-        'js_runtimes': {'deno': {}, 'node': {}}  # 👈 指定使用 node 執行 JS
+        'js_runtimes': {'node': {}}  # 👈 指定使用 node 執行 JS
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
