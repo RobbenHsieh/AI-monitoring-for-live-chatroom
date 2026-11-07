@@ -7,7 +7,7 @@ from google.genai.errors import APIError
 from schemas import AgentState, ActionType, UIAction, UIPayload, AgentResponsePayload
 
 logger = logging.getLogger(__name__)
-global_model_name = "models/gemini-2.5-flash-lite"  # 預設模型名稱，可透過環境變數 GEMINI_MODEL_NAME 覆蓋
+global_model_name = "models/gemini-3.5-flash-lite"  # 預設模型名稱，可透過環境變數 GEMINI_MODEL_NAME 覆蓋
 
 class LiveInteractionEngine:
     def __init__(self, api_key: str, model_name: str = global_model_name):

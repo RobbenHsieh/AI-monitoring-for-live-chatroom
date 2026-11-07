@@ -62,7 +62,7 @@ if not rate_limit_tier:
         rate_limit_tier = st.secrets.get("GEMINI_RATE_LIMIT_TIER")
     except Exception:
         pass
-global_model_name = "models/gemini-2.5-flash-lite"
+global_model_name = "models/gemini-3.5-flash-lite"
 
 st.set_page_config(page_title="AI Agent FSM & Generative UI Demo", layout="wide")
 
