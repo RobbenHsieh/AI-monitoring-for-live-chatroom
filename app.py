@@ -45,6 +45,8 @@ import threading
 current_dir = Path(__file__).parent.resolve()
 load_dotenv(dotenv_path=current_dir / "GEMINI_API_KEY.env")
 api_key = os.getenv("GEMINI_API_KEY")
+if not api_key and "GEMINI_API_KEY" in st.secrets:
+    api_key = st.secrets["GEMINI_API_KEY"]
 youtube_api_key = os.getenv("YOUTUBE_API_KEY")
 rate_limit_tier = os.getenv("GEMINI_RATE_LIMIT_TIER", "Free")
 global_model_name = "models/gemini-2.5-flash-lite"
@@ -756,7 +758,7 @@ def get_live_audio_url(youtube_url: str) -> str:
         'format': 'bestaudio/best',
         'quiet': True,
         'skip_download': True,
-        'js_runtimes': {'node': {}}  # 👈 指定使用 node 執行 JS
+        'js_runtimes': {'deno': {}, 'node': {}}  # 👈 指定使用 node 執行 JS
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
