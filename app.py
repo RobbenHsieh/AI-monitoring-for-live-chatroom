@@ -1264,6 +1264,45 @@ def safe_purge_directory(dir_path: Path):
 def render_live_chatroom_stream():
     chat_container = st.container(height=540, border=True)
 
+    # --------------------------------------------------------------
+    # 一鍵測試 API 健康檢查 (Gemini + YouTube Data API + FFmpeg)
+    # --------------------------------------------------------------
+    with st.expander("🔍 System Pre-flight & API Diagnostics"):
+        if st.button("Run Full API Health Check", use_container_width=True):
+            status_box = st.status("正在檢測各項 API 狀態...", expanded=True)
+            
+            # 1. 檢測 Gemini Text API
+            try:
+                test_client = genai.Client(api_key=api_key)
+                test_res = test_client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents="ping",
+                    config={"max_output_tokens": 1}
+                )
+                status_box.write("✅ Gemini API (Text): 正常連線")
+            except Exception as e:
+                status_box.write(f"❌ Gemini API (Text): 失敗 ({e})")
+
+            # 2. 檢測 YouTube Data API
+            try:
+                yt_url = f"https://www.googleapis.com/youtube/v3/videos?part=snippet&id=jfKfPfyJRdk&key={youtube_api_key}"
+                yt_res = requests.get(yt_url, timeout=5).json()
+                if "items" in yt_res:
+                    status_box.write("✅ YouTube Data API: 正常連線")
+                else:
+                    status_box.write(f"❌ YouTube Data API: 失敗 ({yt_res.get('error', {}).get('message', '未知錯誤')})")
+            except Exception as e:
+                status_box.write(f"❌ YouTube Data API: 連線異常 ({e})")
+
+            # 3. 檢測 FFmpeg Linux 系統指令
+            ffmpeg_check = subprocess.run(["ffmpeg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if ffmpeg_check.returncode == 0:
+                status_box.write("✅ 系統 FFmpeg: 正常就緒")
+            else:
+                status_box.write("❌ 系統 FFmpeg: 未安裝或路徑錯誤")
+
+            status_box.update(label="診斷完成！", state="complete")
+
     with chat_container:
         for idx, chat in enumerate(st.session_state.chat_history):
             # --------------------------------------------------------------
