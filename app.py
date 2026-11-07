@@ -733,9 +733,13 @@ def get_live_audio_url(youtube_url: str) -> str:
         'format': 'bestaudio/best',
         'quiet': True,
         'skip_download': True,
+        # 👇 明確啟用 node 作為 JS runtime，解除 "No supported JavaScript runtime" 警告
+        'js_runtimes': {
+            'node': {}
+        }
     }
 
-    # 讀取並注入暫存 cookies（若已設定）
+    # 讀取並注入暫存 cookies（若已在 st.secrets 配置 YOUTUBE_COOKIES）
     cookies_str = None
     try:
         cookies_str = st.secrets.get("YOUTUBE_COOKIES")
@@ -751,7 +755,7 @@ def get_live_audio_url(youtube_url: str) -> str:
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
         return info['url']
-
+    
 def start_audio_slicing_pipeline(audio_stream_url: str, segment_seconds: int = 20, output_dir: str = "audio_chunks"):
     """叫起背景 FFmpeg 子程序進行音訊分段切片供 STT 使用"""
     os.makedirs(output_dir, exist_ok=True)
