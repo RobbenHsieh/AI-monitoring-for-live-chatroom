@@ -4,6 +4,10 @@ from pathlib import Path
 from dotenv import load_dotenv
 from google import genai
 
+# =============================================================
+# command: python build_graph.py
+# =============================================================
+
 # 載入金鑰
 current_dir = Path(__file__).parent.resolve()
 load_dotenv(dotenv_path=current_dir / "GEMINI_API_KEY.env")

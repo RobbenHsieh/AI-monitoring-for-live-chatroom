@@ -1,27 +1,25 @@
 digraph ArchitectureGraph {
-    // 根節點與全局屬性設定
-    graph [
-        fontname="Microsoft JhengHei",
-        rankdir=LR,
-        compound=true,
-        nodesep=0.6,
-        ranksep=0.8,
-        bgcolor="#1E1E1E",
-        color="#FFFFFF"
-    ];
-    
+    rankdir=TB;
+    compound=true;
+    node [fontname="Microsoft JhengHei"];
+    edge [fontname="Microsoft JhengHei"];
+    graph [fontname="Microsoft JhengHei", ranksep=0.8, nodesep=0.6];
+
+    // Global Graph Styling
+    bgcolor="#1E1E1E";
+    color="#FFFFFF";
+    fontcolor="#FFFFFF";
+
     node [
-        fontname="Microsoft JhengHei",
         shape=box,
-        style="filled,rounded",
+        style="filled, rounded",
+        color="#333333",
         fillcolor="#2D2D2D",
         fontcolor="#FFFFFF",
-        color="#555555",
         margin=0.2
     ];
-    
+
     edge [
-        fontname="Microsoft JhengHei",
         color="#888888",
         fontcolor="#CCCCCC",
         fontsize=10,
@@ -29,89 +27,85 @@ digraph ArchitectureGraph {
         penwidth=1.5
     ];
 
-    // 核心模組群組 (Subgraphs)
+    // --- Subgraph: Data Schemas ---
     subgraph cluster_schemas {
-        label="資料結構與型別 (schemas.py)";
-        style="filled,rounded";
+        label = "資料模型與契約 (schemas.py)";
+        style="rounded,filled";
         fillcolor="#252526";
-        fontcolor="#4EC9B0";
         color="#3F3F46";
+        fontcolor="#4EC9B0";
 
-        AgentState [label="AgentState (Enum)\n- IDLE_ICEBREAKER\n- ACTIVE_INTERACTION\n- VIOLATION_CIRCUIT_BREAKER", fillcolor="#332B00", color="#DCDCAA"];
-        ActionType [label="ActionType (Enum)\n- RENDER_TEXT\n- RENDER_BUTTONS\n- TRIGGER_ALERT", fillcolor="#332B00", color="#DCDCAA"];
-        AgentResponsePayload [label="AgentResponsePayload (Pydantic)\n- current_state\n- thought_process\n- display_message\n- translation_zh\n- ui_actions\n- usage_metadata", fillcolor="#1E3A1E", color="#4EC9B0"];
-        UIAction [label="UIAction / UIPayload", fillcolor="#1E3A1E", color="#4EC9B0"];
+        AgentState [label="AgentState (Enum)\n- IDLE_ICEBREAKER\n- ACTIVE_INTERACTION\n- VIOLATION_CIRCUIT_BREAKER", fillcolor="#1E1E1E", color="#4EC9B0"];
+        ActionType [label="ActionType (Enum)\n- RENDER_TEXT\n- RENDER_BUTTONS\n- TRIGGER_ALERT", fillcolor="#1E1E1E", color="#4EC9B0"];
+        UIPayload [label="UIPayload (BaseModel)\n- buttons\n- alert_level\n- alert_message", fillcolor="#1E1E1E", color="#4EC9B0"];
+        UIAction [label="UIAction (BaseModel)\n- action_type\n- payload", fillcolor="#1E1E1E", color="#4EC9B0"];
+        AgentResponsePayload [label="AgentResponsePayload (BaseModel)\n- current_state\n- thought_process\n- display_message\n- translation_zh\n- ui_actions\n- usage_metadata", fillcolor="#1E1E1E", color="#4EC9B0"];
     }
 
+    // --- Subgraph: Core Engine ---
     subgraph cluster_engine {
-        label="AI 互動引擎與 LLM 邏輯 (engine.py)";
-        style="filled,rounded";
+        label = "核心引擎 (engine.py)";
+        style="rounded,filled";
         fillcolor="#252526";
-        fontcolor="#4EC9B0";
         color="#3F3F46";
+        fontcolor="#CE9178";
 
-        LiveInteractionEngine [label="LiveInteractionEngine\n- __init__(api_key, model_name)\n- evaluate_and_respond(idle_seconds, viewer_message)\n- _fallback_response()", fillcolor="#1F3864", color="#569CD6"];
+        LiveInteractionEngine [label="LiveInteractionEngine (Class)\n- __init__(api_key, model_name)\n- evaluate_and_respond(idle_seconds, viewer_message)\n- _fallback_response()", fillcolor="#1E1E1E", color="#CE9178"];
     }
 
+    // --- Subgraph: YouTube Stream & Listener ---
     subgraph cluster_youtube {
-        label="YouTube 串流與聊天監聽 (youtube_stream.py)";
-        style="filled,rounded";
+        label = "YouTube 串流與彈幕監聽 (youtube_stream.py)";
+        style="rounded,filled";
         fillcolor="#252526";
-        fontcolor="#4EC9B0";
         color="#3F3F46";
-
-        YouTubeChatListener [label="YouTubeChatListener\n- extract_video_id()\n- get_latest_chat_batch()", fillcolor="#5C3A21", color="#CE9178"];
-        ViewersFetcher [label="fetch_youtube_concurrent_viewers()", fillcolor="#5C3A21", color="#CE9178"];
-    }
-
-    subgraph cluster_app {
-        label="Streamlit Web 前端與狀態控制 (app.py)";
-        style="filled,rounded";
-        fillcolor="#252526";
-        fontcolor="#4EC9B0";
-        color="#3F3F46";
-
-        AppMain [label="Streamlit App UI\n- st.set_page_config()\n- Session State 初始化\n- Trust & Safety Console", fillcolor="#4A235A", color="#C586C0"];
-        FragmentChat [label="render_live_chatroom_stream()\n(@st.fragment run_every='3s')", fillcolor="#4A235A", color="#C586C0"];
-        FragmentDashboard [label="render_analytics_dashboard_hub()\n(@st.fragment run_every='8s')", fillcolor="#4A235A", color="#C586C0"];
-        SentimentEval [label="evaluate_message_sentiment()\ncheck_and_apply_moderation()", fillcolor="#4A235A", color="#C586C0"];
-    }
-
-    // FSM 狀態流轉次圖群組
-    subgraph cluster_fsm {
-        label="FSM 狀態流轉模型 (State Transition)";
-        style="filled,rounded";
-        fillcolor="#1E1E1E";
         fontcolor="#DCDCAA";
-        color="#3F3F46";
 
-        FSM_Idle [label="IDLE_ICEBREAKER\n(沉默破冰 1-3 句)", fillcolor="#332B00", color="#DCDCAA"];
-        FSM_Active [label="ACTIVE_INTERACTION\n(正常互動)", fillcolor="#1E3A1E", color="#4EC9B0"];
-        FSM_Breaker [label="CIRCUIT_BREAKER\n(違規熔斷/降級)", fillcolor="#4A1515", color="#F44747"];
+        extract_video_id [label="extract_video_id()", fillcolor="#1E1E1E", color="#DCDCAA"];
+        YouTubeChatListener [label="YouTubeChatListener (Class)\n- __init__(video_url)\n- get_latest_chat_batch()", fillcolor="#1E1E1E", color="#DCDCAA"];
+        fetch_youtube_concurrent_viewers [label="fetch_youtube_concurrent_viewers()", fillcolor="#1E1E1E", color="#DCDCAA"];
     }
 
-    // 關聯與引用關係 (Imports & Calls)
-    LiveInteractionEngine -> AgentResponsePayload [label="產出與驗證", color="#4EC9B0", style="dashed"];
-    LiveInteractionEngine -> AgentState [label="判定狀態", color="#DCDCAA"];
-    UIAction -> ActionType [label="使用", color="#C586C0"];
-    AgentResponsePayload -> UIAction [label="包含", color="#4EC9B0"];
+    // --- Subgraph: Streamlit Web App ---
+    subgraph cluster_app {
+        label = "Streamlit 前端與調度中樞 (app.py)";
+        style="rounded,filled";
+        fillcolor="#252526";
+        color="#3F3F46";
+        fontcolor="#569CD6";
 
-    AppMain -> LiveInteractionEngine [label="初始化並調用\n(evaluate_and_respond)", color="#569CD6"];
-    AppMain -> YouTubeChatListener [label="建立連線監聽", color="#CE9178"];
-    AppMain -> ViewersFetcher [label="輪詢在線人數", color="#CE9178"];
-    
-    FragmentChat -> YouTubeChatListener [label="獲取最新彈幕", color="#CE9178"];
-    FragmentChat -> LiveInteractionEngine [label="發送訊息與頻率節流", color="#569CD6"];
-    FragmentChat -> SentimentEval [label="語意評分與風控審查", color="#C586C0"];
-    
-    FragmentDashboard -> SentimentEval [label="讀取紀錄與繪製趨勢", color="#C586C0"];
+        AppMain [label="App 主控台邏輯\n- 環境與金鑰載入\n- FSM 狀態流轉控制\n- 預算與風控治理", fillcolor="#1E1E1E", color="#569CD6"];
+        render_live_chatroom_stream [label="render_live_chatroom_stream()\n(@st.fragment run_every='3s')\n- 聊天室串流與 AI 互動", fillcolor="#1E1E1E", color="#569CD6"];
+        render_analytics_dashboard_hub [label="render_analytics_dashboard_hub()\n(@st.fragment run_every='8s')\n- Performance / LLMOps / STT Hub", fillcolor="#1E1E1E", color="#569CD6"];
+        AudioPipeline [label="雙軌音訊切片管線\n- start_virtual_audio_simulation()\n- start_audio_slicing_pipeline_real()\n- transcribe_audio_chunk_with_gemini()", fillcolor="#1E1E1E", color="#569CD6"];
+    }
 
-    // FSM 狀態流轉關係 (State Transitions)
-    FSM_Active -> FSM_Idle [label="閒置時間 >= 300秒\n且無新訊息", color="#DCDCAA", constraint=false];
-    FSM_Idle -> FSM_Active [label="收到有效 viewer_message", color="#4EC9B0", constraint=false];
-    FSM_Active -> FSM_Breaker [label="觸發違禁詞/惡意攻擊\n(scam, fraud, 詐欺)", color="#F44747", constraint=false];
-    FSM_Breaker -> FSM_Active [label="人工手動解除 (HITL)\n或預算恢復", color="#4EC9B0", constraint=false];
+    // --- Relationships & Data Flows ---
 
-    // 跨模組邏輯對齊
-    AgentState -> FSM_Active [style=invis];
+    // Schemas internal references
+    UIAction -> ActionType [style=dashed, label="uses"];
+    UIAction -> UIPayload [style=dashed, label="uses"];
+    AgentResponsePayload -> AgentState [style=dashed, label="uses"];
+    AgentResponsePayload -> UIAction [style=dashed, label="contains"];
+
+    // Engine uses Schemas
+    LiveInteractionEngine -> AgentResponsePayload [color="#CE9178", label="Returns Structured JSON"];
+    LiveInteractionEngine -> AgentState [color="#CE9178", label="Evaluates States"];
+
+    // App imports and uses Engine & Schemas
+    AppMain -> LiveInteractionEngine [color="#569CD6", label="Initializes & Calls"];
+    AppMain -> YouTubeChatListener [color="#569CD6", label="Instantiates"];
+    AppMain -> AgentState [color="#569CD6", label="Tracks State Machine"];
+
+    // YouTube Stream dependencies
+    YouTubeChatListener -> extract_video_id [color="#DCDCAA", label="Calls"];
+    fetch_youtube_concurrent_viewers -> extract_video_id [style=dashed, label="Uses Video ID"];
+
+    // Fragments and App execution flow
+    render_live_chatroom_stream -> LiveInteractionEngine [color="#569CD6", label="Calls evaluate_and_respond()"];
+    render_live_chatroom_stream -> YouTubeChatListener [color="#569CD6", label="Fetches chat batch"];
+    render_analytics_dashboard_hub -> AudioPipeline [color="#569CD6", label="Audits STT & Metrics"];
+
+    // FSM State Transition representation within App/Engine
+    AgentState -> AgentState [color="#4EC9B0", label="FSM Transition:\nIDLE_ICEBREAKER ⇄ ACTIVE_INTERACTION\n↓ (Violation)\nVIOLATION_CIRCUIT_BREAKER", constraint=false];
 }

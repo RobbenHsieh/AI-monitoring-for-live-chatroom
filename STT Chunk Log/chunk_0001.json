@@ -1,0 +1,11 @@
+{
+  "chunk_id": "chunk_0001",
+  "start_ts": 1794138142.4895897,
+  "end_ts": 1794138322.4895897,
+  "time_window": "19:42:22 - 19:45:22",
+  "text": "ありがとうございます。ありがとうございます。",
+  "pos_count": 4,
+  "neg_count": 1,
+  "net_score": 9,
+  "status": "Evaluated"
+}
